@@ -1,49 +1,34 @@
 import {
   Cancel,
   ContentCopy,
-  ContentCopyRounded,
   DeleteRounded,
   Done,
   EditRounded,
-  IosShare,
   LaunchRounded,
-  LinkRounded,
   Pause,
   PlayArrow,
   PushPinRounded,
-  QrCode2Rounded,
   RadioButtonChecked,
   RecordVoiceOver,
   RecordVoiceOverRounded,
 } from "@mui/icons-material";
 import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Divider,
   IconButton,
-  InputAdornment,
   Menu,
   MenuItem,
   Tab,
-  Tabs,
-  TextField,
-  Typography,
 } from "@mui/material";
 import { BottomSheet } from "react-spring-bottom-sheet";
 import { Emoji, EmojiStyle } from "emoji-picker-react";
 import styled from "@emotion/styled";
 import "react-spring-bottom-sheet/dist/style.css";
 import { useResponsiveDisplay } from "../hooks/useResponsiveDisplay";
-import { ColorPalette, DialogBtn } from "../styles";
+import { ColorPalette } from "../styles";
 import { useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "../contexts/UserContext";
-import QRCode from "react-qr-code";
 import { Task, UUID } from "../types/user";
 import { calculateDateDifference, formatDate } from "../utils";
 import Marquee from "react-fast-marquee";
@@ -68,9 +53,7 @@ export const TaskMenu: React.FC<TaskMenuProps> = ({
   handleSelectTask,
 }) => {
   const { user, setUser } = useContext(UserContext);
-  const { tasks, name, settings, emojisStyle } = user;
-  const [showShareDialog, setShowShareDialog] = useState<boolean>(false);
-  const [shareTabVal, setShareTabVal] = useState<number>(0);
+  const { tasks, settings, emojisStyle } = user;
   const isMobile = useResponsiveDisplay();
   const n = useNavigate();
 
@@ -78,54 +61,6 @@ export const TaskMenu: React.FC<TaskMenuProps> = ({
     const selectedTask = tasks.find((task) => task.id === selectedTaskId);
     const taskId = selectedTask?.id.toString().replace(".", "");
     n(`/task/${taskId}`);
-  };
-
-  const generateShareableLink = (taskId: UUID | null, userName: string): string => {
-    const task = tasks.find((task) => task.id === taskId);
-
-    // This removes id property from link as a new identifier is generated on the share page.
-    interface TaskToShare extends Omit<Task, "id"> {
-      id: undefined;
-    }
-
-    if (task) {
-      const taskToShare: TaskToShare = {
-        ...task,
-        sharedBy: undefined,
-        id: undefined,
-        category: user.settings[0].enableCategories ? task.category : undefined,
-      };
-      const encodedTask = encodeURIComponent(JSON.stringify(taskToShare));
-      const encodedUserName = encodeURIComponent(userName);
-      return `${window.location.href}share?task=${encodedTask}&userName=${encodedUserName}`;
-    }
-    return "";
-  };
-
-  const handleCopyToClipboard = async () => {
-    const linkToCopy = generateShareableLink(selectedTaskId, name || "User");
-    try {
-      await navigator.clipboard.writeText(linkToCopy);
-      toast.success((t) => <div onClick={() => toast.dismiss(t.id)}>Copied link to clipboard</div>);
-    } catch (error) {
-      console.error("Error copying link to clipboard:", error);
-      toast.error("Error copying link to clipboard");
-    }
-  };
-
-  const handleShare = () => {
-    const linkToShare = generateShareableLink(selectedTaskId, name || "User");
-    if (navigator.share) {
-      navigator
-        .share({
-          title: "Share Task",
-          text: `Check out this task: ${tasks.find((task) => task.id === selectedTaskId)?.name}`,
-          url: linkToShare,
-        })
-        .catch((error) => {
-          console.error("Error sharing link:", error);
-        });
-    }
   };
 
   const handleMarkAsDone = () => {
@@ -376,15 +311,6 @@ export const TaskMenu: React.FC<TaskMenuProps> = ({
         </StyledMenuItem>
       )}
 
-      <StyledMenuItem
-        onClick={() => {
-          handleCloseMoreMenu();
-          setShowShareDialog(true);
-        }}
-      >
-        <LinkRounded /> &nbsp; Share
-      </StyledMenuItem>
-
       <Divider />
       <StyledMenuItem
         onClick={() => {
@@ -410,9 +336,6 @@ export const TaskMenu: React.FC<TaskMenuProps> = ({
     </div>
   );
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setShareTabVal(newValue);
-  };
   return (
     <>
       {isMobile ? (
@@ -456,105 +379,10 @@ export const TaskMenu: React.FC<TaskMenuProps> = ({
           {menuItems}
         </Menu>
       )}
-      <Dialog
-        open={showShareDialog}
-        onClose={() => setShowShareDialog(false)}
-        PaperProps={{
-          style: {
-            borderRadius: "28px",
-            padding: "10px",
-            width: "560px",
-          },
-        }}
-      >
-        <DialogTitle>Share Task</DialogTitle>
-        <DialogContent>
-          <span>
-            Share Task: <b>{tasks.find((task) => task.id === selectedTaskId)?.name}</b>
-          </span>
-          <Tabs value={shareTabVal} onChange={handleTabChange} sx={{ m: "8px 0" }}>
-            <StyledTab label="Link" icon={<LinkRounded />} />
-            <StyledTab label="QR Code" icon={<QrCode2Rounded />} />
-          </Tabs>
-          <CustomTabPanel value={shareTabVal} index={0}>
-            <ShareField
-              value={generateShareableLink(selectedTaskId, name || "User")}
-              fullWidth
-              variant="outlined"
-              label="Shareable Link"
-              InputProps={{
-                readOnly: true,
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LinkRounded sx={{ ml: "8px" }} />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Button
-                      onClick={() => {
-                        handleCopyToClipboard();
-                      }}
-                      sx={{ p: "12px", borderRadius: "14px", mr: "4px" }}
-                    >
-                      <ContentCopyRounded /> &nbsp; Copy
-                    </Button>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                mt: 3,
-              }}
-            />
-          </CustomTabPanel>
-          <CustomTabPanel value={shareTabVal} index={1}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "#fff",
-                marginTop: "22px",
-              }}
-            >
-              <QRCode value={generateShareableLink(selectedTaskId, name || "User")} size={400} />
-            </Box>
-          </CustomTabPanel>
-        </DialogContent>
-        <DialogActions>
-          <DialogBtn onClick={() => setShowShareDialog(false)}>Close</DialogBtn>
-          <DialogBtn onClick={handleShare}>
-            <IosShare sx={{ mb: "4px" }} /> &nbsp; Share
-          </DialogBtn>
-        </DialogActions>
-      </Dialog>
     </>
   );
 };
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
 
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`share-tabpanel-${index}`}
-      aria-labelledby={`share-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-}
 const SheetHeader = styled.h3`
   display: flex;
   justify-content: center;
@@ -588,15 +416,6 @@ const StyledMenuItem = styled(MenuItem)<{ clr?: string }>`
 
   &:hover {
     background-color: #f0f0f0;
-  }
-`;
-
-const ShareField = styled(TextField)`
-  margin-top: 22px;
-  .MuiOutlinedInput-root {
-    border-radius: 14px;
-    padding: 2px;
-    transition: 0.3s all;
   }
 `;
 

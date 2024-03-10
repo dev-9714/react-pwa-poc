@@ -1,41 +1,16 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
-  Box,
-  Button,
-  Chip,
   Dialog,
   DialogActions,
   DialogTitle,
-  FormControl,
   FormControlLabel,
   FormGroup,
-  FormLabel,
-  IconButton,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  Slider,
-  Stack,
   Switch,
-  Tooltip,
 } from "@mui/material";
 import type { AppSettings } from "../types/user";
 import { DialogBtn } from "../styles";
 import styled from "@emotion/styled";
-import { Emoji, EmojiStyle } from "emoji-picker-react";
-import { useOnlineStatus } from "../hooks/useOnlineStatus";
-import {
-  CachedRounded,
-  DeleteRounded,
-  VolumeDown,
-  VolumeOff,
-  VolumeUp,
-  WifiOffRounded,
-} from "@mui/icons-material";
-import { defaultUser } from "../constants/defaultUser";
 import { UserContext } from "../contexts/UserContext";
-import { iOS } from "../utils/iOS";
-import toast from "react-hot-toast";
 
 interface SettingsProps {
   open: boolean;
@@ -109,33 +84,9 @@ const Container = styled.div`
   gap: 6px;
 `;
 
-const StyledSelect = styled(Select)`
-  width: 330px;
-  color: black;
-  margin: 8px 0;
-`;
-
 const StyledFormLabel = styled(FormControlLabel)`
   max-width: 300px;
 `;
 
-const NoVoiceStyles = styled.p`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 6px;
-  opacity: 0.8;
-  font-weight: 500;
-  max-width: 330px;
-`;
 
-const VolumeSlider = styled(Stack)`
-  margin: 8px 0;
-  background: #afafaf39;
-  padding: 12px 24px 12px 18px;
-  border-radius: 18px;
-  transition: 0.3s all;
-  &:hover {
-    background: #89898939;
-  }
-`;
+

@@ -1,8 +1,7 @@
-import { useState, useEffect, ReactNode, useContext, useMemo } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import { AddTaskBtn, Tasks } from "../components";
 import {
   GreetingHeader,
-  GreetingText,
   Offline,
   ProgressPercentageContainer,
   StyledProgress,
@@ -13,7 +12,7 @@ import {
   TasksCountContainer,
 } from "../styles";
 
-import { displayGreeting, getRandomGreeting, getTaskCompletionText } from "../utils";
+import { displayGreeting, getTaskCompletionText } from "../utils";
 import { Emoji } from "emoji-picker-react";
 import { Box, Typography } from "@mui/material";
 import { useOnlineStatus } from "../hooks/useOnlineStatus";
@@ -24,8 +23,6 @@ const Home = () => {
   const { user } = useContext(UserContext);
   const { tasks, emojisStyle, settings, name } = user;
 
-  const [randomGreeting, setRandomGreeting] = useState<string | ReactNode>("");
-  const [greetingKey, setGreetingKey] = useState<number>(0);
   const [completedTasksCount, setCompletedTasksCount] = useState<number>(0);
 
   const [tasksWithDeadlineTodayCount, setTasksWithDeadlineTodayCount] = useState<number>(0);
@@ -39,15 +36,7 @@ const Home = () => {
   const isOnline = useOnlineStatus();
 
   useEffect(() => {
-    setRandomGreeting(getRandomGreeting());
     document.title = "Todo App";
-
-    const interval = setInterval(() => {
-      setRandomGreeting(getRandomGreeting());
-      setGreetingKey((prevKey) => prevKey + 1); // Update the key on each interval
-    }, 6000);
-
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -70,31 +59,6 @@ const Home = () => {
     const taskNamesDueToday = dueTodayTasks.map((task) => task.name);
     setTasksDueTodayNames(taskNamesDueToday);
   }, [tasks]);
-
-  const replaceEmojiCodes = (text: string): ReactNode[] => {
-    const emojiRegex = /\*\*(.*?)\*\*/g;
-    const parts = text.split(emojiRegex);
-
-    return parts.map((part, index) => {
-      if (index % 2 === 1) {
-        // It's an emoji code, render Emoji component
-        const emojiCode = part.trim();
-        return <Emoji key={index} size={20} unified={emojiCode} emojiStyle={emojisStyle} />;
-      } else {
-        // It's regular text
-        return part;
-      }
-    });
-  };
-
-  const renderGreetingWithEmojis = (text: string | ReactNode) => {
-    if (typeof text === "string") {
-      return replaceEmojiCodes(text);
-    } else {
-      // It's already a ReactNode, no need to process
-      return text;
-    }
-  };
 
   return (
     <>

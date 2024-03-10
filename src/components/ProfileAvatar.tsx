@@ -1,11 +1,6 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import {
   Avatar,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Divider,
   IconButton,
   MenuItem,
@@ -15,23 +10,13 @@ import {
 import styled from "@emotion/styled";
 import {
   AddRounded,
-  AdjustRounded,
-  BugReportRounded,
-  CategoryRounded,
-  Favorite,
-  GetAppRounded,
-  GitHub,
-  Logout,
   SettingsRounded,
-  StarRounded,
   TaskAltRounded,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { defaultUser } from "../constants/defaultUser";
 import { SettingsDialog } from ".";
 import toast from "react-hot-toast";
 import logo from "../assets/logo256.png";
-import { ColorPalette } from "../styles";
 import { UserContext } from "../contexts/UserContext";
 import { iOS } from "../utils/iOS";
 
@@ -41,11 +26,7 @@ export const ProfileAvatar = () => {
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const [logoutConfirmationOpen, setLogoutConfirmationOpen] = useState<boolean>(false);
   const [openSettings, setOpenSettings] = useState<boolean>(false);
-
-  const [stars, setStars] = useState<number | null>(null);
-
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -56,14 +37,6 @@ export const ProfileAvatar = () => {
     setAnchorEl(null);
     document.getElementById("root")?.removeAttribute("aria-sidebar");
   };
-
-  const handleLogoutConfirmationClose = () => {
-    setLogoutConfirmationOpen(false);
-  };
-
-  function timeAgo(arg0: Date): import("react").ReactNode {
-    throw new Error("Function not implemented.");
-  }
 
   return (
     <Container>
@@ -238,12 +211,6 @@ const StyledMenuItem = styled(MenuItem)`
     }
   }
 `;
-const DialogBtn = styled(Button)`
-  padding: 8px 12px;
-  border-radius: 12px;
-  font-size: 16px;
-  margin: 8px;
-`;
 
 const MenuLabel = styled.span<{ clr?: string }>`
   margin-left: auto;
@@ -269,15 +236,4 @@ const LogoContainer = styled.div`
 const Logo = styled.img`
   width: 52px;
   margin-left: 18px;
-`;
-
-const CreditsContainer = styled.div`
-  font-size: 12px;
-  margin: 0;
-  color: #101727c0;
-
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
